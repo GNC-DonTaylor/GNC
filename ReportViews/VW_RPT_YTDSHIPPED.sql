@@ -1,0 +1,168 @@
+/*
+--YTDShippedAllPricePoints-NatlAcct-byGroup (NEEDS CONVERTED TO INSIGHT)
+select sh.divisionnumber, SH.GROUPNUMBER, iv.PLANTGROUPCODE, im.catalogsortname, sd.ITEMNUMBER, SD.CONTAINERCODE, SD.QUALITYCODE, SD.GRADECODE, iv.COMMONNAME, sum(sd.QUANTITYSHIPPED) qtyshipped, sd.LISTPRICE, sd.MERCHANDISEPRICE    
+from   sales_header sh, sales_detail sd, item_master im, item_variety iv    
+where  sh.ORDERNUMBER = sd.ORDERNUMBER    
+and       sh.RELEASENUMBER = sd.RELEASENUMBER
+and       sh.ORDERINVOICED = 'I'
+and       sh.ORDERSTATUS = 'IN'
+and       sh.DIVISIONNUMBER =20
+and       SH.ACTUALSHIPDATE between '27-JUL-2020' and '04-MAY-2021'
+and       SH.GROUPNUMBER in (33,37,76,115,129,172,345,353,355,356,357,366,378,390,391,406,407,435,444,452,456,458,459,463,466,480,481,491,494,508,512,518,520,523,525,529,530,531,532,535,540)
+--(33,37,76,129,172,345,353,406,435,441,452,458,459,480,481,483,499) 
+--sh.ordertype = 'T'
+--and    IV.PLANTGROUPCODE not in (150,151,160)
+and       sd.ITEMNUMBER = im.ITEMNUMBER
+and       im.VARIETYID = iv.VARIETYID
+group by    
+       sh.divisionnumber, SH.GROUPNUMBER, iv.PLANTGROUPCODE, im.catalogsortname, sd.ITEMNUMBER, SD.CONTAINERCODE, SD.QUALITYCODE, SD.GRADECODE, iv.COMMONNAME, sd.GRADECODE, iv.COMMONNAME, sd.listprice, sd.merchandiseprice
+-------
+--YTDShippedAllPricePoints-NatlAcct-byItem (NEEDS CONVERTED TO INSIGHT)
+select sh.divisionnumber, iv.PLANTGROUPCODE, im.catalogsortname, sd.ITEMNUMBER, SD.CONTAINERCODE, SD.QUALITYCODE, SD.GRADECODE, iv.COMMONNAME, sum(sd.QUANTITYSHIPPED) qtyshipped, sd.LISTPRICE, sd.MERCHANDISEPRICE    
+from   sales_header sh, sales_detail sd, item_master im, item_variety iv    
+where  sh.ORDERNUMBER = sd.ORDERNUMBER    
+and       sh.RELEASENUMBER = sd.RELEASENUMBER
+and       sh.ORDERINVOICED = 'I'
+and       sh.ORDERSTATUS = 'IN'
+and       sh.DIVISIONNUMBER =20
+and       SH.ACTUALSHIPDATE between '27-JUL-2020' and '04-MAY-2021'
+and       SH.GROUPNUMBER in (33,37,76,115,129,172,345,353,355,356,357,366,378,390,391,406,407,435,444,452,456,458,459,463,466,480,481,491,494,508,512,518,520,523,525,529,530,531,532,535,540)
+--(33,37,76,129,172,345,353,406,435,441,452,458,459,480,481,483,499) 
+--sh.ordertype = 'T'
+--and    IV.PLANTGROUPCODE not in (150,151,160)
+and       sd.ITEMNUMBER = im.ITEMNUMBER
+and       im.VARIETYID = iv.VARIETYID
+group by    
+       sh.divisionnumber,iv.PLANTGROUPCODE, im.catalogsortname, sd.ITEMNUMBER, SD.CONTAINERCODE, SD.QUALITYCODE, SD.GRADECODE, iv.COMMONNAME, sd.GRADECODE, iv.COMMONNAME, sd.listprice, sd.merchandiseprice
+-------
+--YTDShippedAllPicePoints-noInterCo-noNatlAcct-TXReps (NEEDS CONVERTED TO INSIGHT)
+SELECT  salesrepid, SALESREPNAME,--groupnumber, NatlAcct, divisionnumber,plantgroupcode,
+        catalogsortname, itemnumber, containercode, qualitycode, gradecode, commonname,
+		sum(QUANTITYSHIPPED) qtyshipped, listprice, merchandiseprice
+FROM (
+		select  SH.SALESREPID, S.SALESREPNAME, SH.GROUPNUMBER,
+				((SELECT cg.NATIONALACCOUNT FROM CUSTOMER_GROUP CG WHERE CG.GROUPNUMBER = SH.GROUPNUMBER)) AS NatlAcct,
+				sh.divisionnumber, iv.PLANTGROUPCODE, im.catalogsortname, sd.ITEMNUMBER, 
+				SD.CONTAINERCODE, SD.QUALITYCODE, SD.GRADECODE, iv.COMMONNAME, 
+				sd.QUANTITYSHIPPED, sd.LISTPRICE, sd.MERCHANDISEPRICE	
+		from    sales_header sh, sales_detail sd, sales_representative s,
+				item_master im, item_variety iv
+		where   sh.ORDERNUMBER = sd.ORDERNUMBER	
+		and     sh.RELEASENUMBER = sd.RELEASENUMBER
+		and     sh.ORDERINVOICED = 'I'
+		and     sh.ORDERSTATUS = 'IN'
+		and     sh.DIVISIONNUMBER =20
+		and     SH.ACTUALSHIPDATE between '27-JUL-2020' and '04-MAY-2021'
+		and     SH.SALESREPID in (7,9,10,15,16,17,19,21,26,27,31)
+		and     sh.ordertype <> 'T'
+        and     SH.SALESREPID = S.SALESREPID
+		and     sd.ITEMNUMBER = im.ITEMNUMBER
+		and     im.VARIETYID = iv.VARIETYID)
+WHERE NVL(NATLACCT,'N') <> 'Y'
+group by
+        salesrepid, SALESREPNAME,--groupnumber, NatlAcct,divisionnumber,plantgroupcode,
+		catalogsortname, itemnumber,containercode, qualitycode,
+		gradecode, commonname,listprice, merchandiseprice
+order by
+        salesrepid, divisionnumber, catalogsortname, commonname
+-------
+--YTDShip_AvgPrice_InterDiv (NEEDS CONVERTED TO INSIGHT)
+select --SH.SALESREPID, 
+       iv.PLANTGROUPCODE, IM.CATALOGSORTNAME, IM.QUALITYCODE, sd.ITEMNUMBER, c.PRINTEDCONTAINERCODE, sd.GRADECODE, iv.COMMONNAME, sum(sd.QUANTITYSHIPPED) qtyshipped, round(avg(sd.LISTPRICE),2) avglistprice, round(avg(sd.MERCHANDISEPRICE),2) avgmerchprice
+from   sales_header sh, sales_detail sd, item_master im, item_variety iv, container c
+where  sh.ORDERNUMBER = sd.ORDERNUMBER
+and	   sh.RELEASENUMBER = sd.RELEASENUMBER
+and	   sh.ORDERINVOICED = 'I'
+and	   sh.ORDERSTATUS = 'IN'
+and	   sh.DIVISIONNUMBER =20
+and    sh.ordertype = 'T'
+and    IM.QUALITYCODE in (1,2)
+--and	   SH.SALESREPID = 15 --Kenny Dolson
+and    SH.ACTUALSHIPDATE between '27-JUL-2020' and '04-MAY-2021'--sysdate--'22-MAY-2015'
+and	   sd.ITEMNUMBER = im.ITEMNUMBER
+and	   im.VARIETYID = iv.VARIETYID
+and	   im.CONTAINERCODE = c.CONTAINERCODE
+group by
+ 	  --SH.SALESREPID, 
+	  iv.PLANTGROUPCODE, IM.CATALOGSORTNAME, IM.QUALITYCODE, sd.ITEMNUMBER, c.PRINTEDCONTAINERCODE, sd.GRADECODE, iv.COMMONNAME
+
+------------------------------------------------------------------------------------------------------------------------
+--YTDShip_AvgPrice-Independents (NEEDS CONVERTED TO INSIGHT)
+SELECT  PLANTGROUPCODE, CATALOGSORTNAME, QUALITYCODE, ITEMNUMBER, PRINTEDCONTAINERCODE, GRADECODE, COMMONNAME, 
+        sum(qtyshipped) qtyshipped, round(avg(LISTPRICE),2) avglistprice, round(avg(MERCHANDISEPRICE),2) avgmerchprice
+FROM    (
+		select (NVL((SELECT cg.NATIONALACCOUNT FROM CUSTOMER_GROUP CG WHERE CG.GROUPNUMBER = SH.GROUPNUMBER),'N')) AS NatlAcct,
+			   iv.PLANTGROUPCODE, IM.CATALOGSORTNAME, IM.QUALITYCODE, sd.ITEMNUMBER, c.PRINTEDCONTAINERCODE, sd.GRADECODE, iv.COMMONNAME, 
+			   sum(sd.QUANTITYSHIPPED) qtyshipped, SD.LISTPRICE, SD.MERCHANDISEPRICE
+		from   sales_header sh, sales_detail sd, item_master im, item_variety iv, container c
+		where  sh.ORDERNUMBER = sd.ORDERNUMBER
+		and	   sh.RELEASENUMBER = sd.RELEASENUMBER
+		and	   sh.ORDERINVOICED = 'I'
+		and	   sh.ORDERSTATUS = 'IN'
+		and	   sh.DIVISIONNUMBER =20
+		and    sh.ordertype <> 'T'
+		and    SH.ACTUALSHIPDATE between '27-JUL-2020' and '04-MAY-2021'
+		and	   sd.ITEMNUMBER = im.ITEMNUMBER
+		and	   im.VARIETYID = iv.VARIETYID
+		and	   im.CONTAINERCODE = c.CONTAINERCODE
+		group by
+			  SH.GROUPNUMBER, iv.PLANTGROUPCODE, IM.CATALOGSORTNAME, IM.QUALITYCODE, 
+			  sd.ITEMNUMBER, c.PRINTEDCONTAINERCODE, sd.GRADECODE, iv.COMMONNAME,
+			  SD.LISTPRICE, SD.MERCHANDISEPRICE
+        )
+WHERE   NVL(NATLACCT,'N') = 'N'
+GROUP BY
+        PLANTGROUPCODE, CATALOGSORTNAME, QUALITYCODE, 
+        ITEMNUMBER, PRINTEDCONTAINERCODE, GRADECODE, COMMONNAME
+ORDER BY
+        PLANTGROUPCODE, CATALOGSORTNAME
+------------------------------------------------------------------------------------------------------------------------
+NEW INSIGHT REPORTS:
+------------------------------------------------------------------------------------------------------------------------
+
+--YTDShippedByGroup-EXCEL
+--YTDShippedByItem-EXCEL
+--YTDShippedByRep-EXCEL
+--YTDShip_AvgPrice-EXCEL
+SELECT * 
+FROM VW_RPT_YTDSHIPPED (NOLOCK) 
+WHERE COMPANYID = 'SB' 
+
+*/
+CREATE OR ALTER VIEW [DBO].[VW_RPT_YTDSHIPPED]
+AS
+SELECT 
+	CUST.ROWID AS CUSTROWID,	--NEEDED TO LINK TO VW_RPT_YTDSHIPPED_KEYREP
+	CO.COMPANYID, 
+	CO.NAME AS COMPANYNAME, 
+	WH.IDENTITYID AS WAREHOUSEID, 
+	WH.NAME AS WAREHOUSENAME, 
+	TRIM(PART.IDENTITYID) AS SALESREP,
+	TRIM(PART.NAME) AS SALESREPNAME,
+	CUST.IDGROUP, 
+	(SELECT DESCRIPTION_1 FROM IDCODES (NOLOCK) WHERE CODETYPE = 'Z7' AND CODE = CUST.IDGROUP) AS CUSTOMERGROUPNAME, 
+	ISNULL(ICUST.USERDEFINEDCODE_8,'N') AS NATLACCT, 
+	IIF(LEFT(OH.TRANSACTIONNUMBER,2)='IC', 'Y', 'N') AS INTERCO_YN, 
+	OH.INVOICEDATE, 
+	PGC.PRODUCTCATEGORYCODE AS PLANTGROUP, 
+	PGC.PRODUCTCATEGORYCODE+ITM.REFERENCE_5+CNT.CONTAINERSORT+ITM.SUBCLASSCODE AS GNC_ITEMSORT, 
+	ITM.ITEMCODE, 
+	CNT.CONTAINERCODE, 
+	ITM.SUBCLASSCODE AS QUALITYCODE, 
+	ITM.REFERENCE_1 AS COMMONNAME, 
+	ITM.PIECESPERUNITQUANTITY AS EQUIV_UNIT, ITM.PIECESPERUNITUOM AS EQUIV_UOM, 
+	ITM.PIECESPERUNITQUANTITY * OD.QUANTITYSHIPPED AS EQUIV_QUANTITY, 
+	OD.QUANTITYSHIPPED, 
+	DBO.FN_LISTPRICE(ITM.ROWID,NULL,NULL) AS LISTPRICE, 
+	OD.UNITPRICE 
+FROM OMTRANSACTIONHEADER OH (NOLOCK) 
+JOIN OMTRANSACTIONDETAIL OD (NOLOCK) ON OD.R_TRANSACTIONHEADER = OH.ROWID 
+JOIN IDMASTER WH (NOLOCK) ON WH.ROWID = OH.R_FMSHIPPER 
+JOIN IDMASTER PART (NOLOCK) ON PART.ROWID = OH.R_SALESPERSON_1
+JOIN IDMASTER CUST (NOLOCK) ON CUST.ROWID = OH.R_CUSTOMER 
+JOIN IDCUSTOMER ICUST (NOLOCK) ON ICUST.R_IDENTITY = CUST.ROWID 
+JOIN IMITEM ITM (NOLOCK) ON ITM.ROWID = OD.R_ITEM 
+JOIN IMPRODUCTCATEGORY PGC (NOLOCK) ON PGC.ROWID = ITM.R_PRODUCTCATEGORY 
+JOIN IMCONTAINER CNT (NOLOCK) ON CNT.ROWID = ITM.R_CONTAINERCODE 
+JOIN ABCOMPANY CO (NOLOCK) ON CO.COMPANYID = OH.COMPANYID 
+WHERE OH.RECORDTYPE = 'Z' 

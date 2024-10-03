@@ -1,0 +1,38 @@
+USE [ABECAS_GNC_TEST]
+GO
+
+/****** Object:  UserDefinedFunction [dbo].[FN_GETEFFECTIVEDATEFRT]    Script Date: 5/17/2021 8:26:37 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+------------------------------
+-- FUNCTION: FN_GETEFFECTIVEDATEFRT
+------------------------------
+-- 
+------------------------------
+-- 
+------------------------------
+CREATE OR ALTER   FUNCTION [dbo].[FN_GETEFFECTIVEDATEFRT]
+( @INDATE DATETIME
+) RETURNS DATETIME
+AS
+BEGIN
+	-- LOCAL PARAMETERS --
+	DECLARE @RESULT		DATETIME
+
+	IF @INDATE IS NULL 
+		SET @INDATE = GETDATE()
+
+	BEGIN	
+		  SELECT @RESULT =MAX(EFFECTIVEDATE) from IMFREIGHTRATETABLEDATE (NOLOCK) where @INDATE > EFFECTIVEDATE
+	END
+	RETURN @RESULT
+END
+
+GO
+
+

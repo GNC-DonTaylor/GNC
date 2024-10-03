@@ -1,0 +1,8 @@
+--TRANSACTION REASONS FROM ePLANT
+SELECT *
+  FROM [ORACLE]..[ROL].[TRANSACTION_REASON] TR
+WHERE STATUS = 'A'
+ORDER BY TR.SORTSEQUENCE
+
+--('Plant','R&DforSale','Re-plant','Receipt-IM','Recount','Shift.IN')
+--02,21,12,??,??,61
