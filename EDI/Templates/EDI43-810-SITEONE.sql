@@ -21,8 +21,18 @@ DECLARE @ROWID UNIQUEIDENTIFIER
 SET @ROWID= (	SELECT OH.ROWID FROM OMTRANSACTIONHEADER OH (NOLOCK) 
 				JOIN IDMASTER CUST (NOLOCK) ON CUST.ROWID = OH.R_CUSTOMER 
 				WHERE CUST.IDGROUP = '43' AND OH.TRANSACTIONNUMBER = 
-				--'20-93724'--missing sku
-				'10-93220'--invalid po# s/b 42466042
+				--'10-99536'--fixed
+				--'10-99558'--fixed
+				--'10-99595'--fixed
+				--'10-99621'--fixed
+				--'10-99187'--fixed
+				--'10-99569'--fixed
+				--'10-99598'--fixed
+				--'10-99734'--fixed
+				--'10-99520'--not shipped yet
+
+				'10-94430'--missing sku
+				--'10-93220'--invalid po# s/b 42466042
 			)
 ------------
 --[HEADER]-- 
